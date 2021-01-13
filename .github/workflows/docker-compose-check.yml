@@ -1,0 +1,24 @@
+name: docker-compose-checker
+
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: |
+          sudo docker-compose build
+      - name: Webpacker install
+        run: |
+          docker-compose run web bundle exec rails webpacker:install
+      - name: Rails-Test
+        run: |
+          docker-compose run web bundle exec rails db:migrate:reset RAILS_ENV=test
+          docker-compose run web bundle exec rails test
+      - name: Compose-Run
+        run: |
+          docker-compose up -d
+      - name: Compose-Down
+        run: |
+          docker-compose down
